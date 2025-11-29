@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tri-Sandhya Timings</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load SunCalc Library for astronomical calculations -->
+    <script src="https://unpkg.com/suncalc@1.9.0/suncalc.js"></script>
+    <style>
+        /* Custom styles for background and font */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc; /* Light gray background */
+        }
+        .card {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .glow {
+            text-shadow: 0 0 5px #f6e0b7, 0 0 10px #fbd38d;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-gray-100">
+
+    <div id="app" class="w-full max-w-lg">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-orange-700 glow">Tri-Sandhya Timer</h1>
+            <p class="text-gray-600 mt-2">Auspicious timings based on your local date and location.</p>
+        </header>
+
+        <!-- Location and Date Display -->
+        <div class="bg-white p-6 rounded-xl mb-6 card border-t-4 border-orange-500">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Current Context</h2>
+            <p class="text-sm text-gray-500">Date: <span id="current-date" class="font-medium text-gray-700">Loading...</span></p>
+            <p class="text-sm text-gray-500">Time: <span id="current-time" class="font-medium text-gray-700">Loading...</span></p>
+            <p class="text-sm text-gray-500">Location: <span id="location-display" class="font-medium text-gray-700">Fetching coordinates...</span></p>
+        </div>
+
+        <!-- Timings Display Area -->
+        <div id="timings-container" class="space-y-4">
+            <!-- Initial Loading State -->
+            <div id="loading-message" class="text-center p-8 bg-yellow-100 text-yellow-800 rounded-xl font-medium">
+                <svg class="animate-spin h-5 w-5 mr-3 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20h-5v-5M4 20h5v-5M20 4h-5v5"/></svg>
+                Waiting for Geolocation access...
+            </div>
+            <!-- Results will be injected here -->
+        </div>
+
+        <!-- Error/Message Box -->
+        <div id="error-message" class="hidden mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl" role="alert">
+            <span class="font-bold">Error:</span> <span id="error-text"></span>
+        </div>
+    </div>
+
+    <script>
+        // --- Utility Functions ---
+
+        // Function to format Date objects into readable time strings (e.g., 6:30 AM)
+        const formatTime = (date) => {
+            if (!date || isNaN(date.getTime())) return 'N/A';
+            return date.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        };
+
+        // Function to update the current time every second
+        const updateClock = () => {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+        };
+
+        // --- Core Calculation Logic ---
+
+        /**
+         * Calculates the Tri-Sandhya timings based on astronomical events.
+         * Sandhya periods are conventionally defined relative to sunrise, solar noon, and sunset.
+         * We use the 72-minute (1 Muhurta) rule for the transition periods.
+         * @param {Date} today - The current date.
+         * @param {number} lat - Latitude.
+         * @param {number} lng - Longitude.
+         * @returns {object[]} - Array of Sandhya timing objects.
+         */
+        const calculateTriSandhya = (today, lat, lng) => {
+            // SunCalc provides key astronomical times: sunrise, sunset, solarNoon, etc.
+            const times = SunCalc.getTimes(today, lat, lng);
+
+            if (!times.sunrise || !times.sunset) {
+                throw new Error("Could not calculate sunrise or sunset for this location and date.");
+            }
+
+            // Time difference in milliseconds for 72 minutes (the common duration for Sandhya transitions)
+            const SEVENTY_TWO_MIN = 72 * 60 * 1000;
+            // Half duration for Madhyahnikam (24 minutes before and 24 minutes after solar noon)
+            const TWENTY_FOUR_MIN = 24 * 60 * 1000;
+
+            const timings = [];
+
+            // 1. Pratah Sandhya (Morning)
+            const pratahStart = new Date(times.sunrise.getTime() - SEVENTY_TWO_MIN);
+            const pratahEnd = times.sunrise; // Ends at Sunrise (Uttama time)
+
+            timings.push({
+                name: "Pratah Sandhya (Morning)",
+                description: "The junction of night and day. Optimal period (Uttama) is when stars are visible until sunrise.",
+                icon: "🌞",
+                start: pratahStart,
+                end: pratahEnd
+            });
+
+            // 2. Madhyahnikam Sandhya (Noon)
+            const madhyaStart = new Date(times.solarNoon.getTime() - TWENTY_FOUR_MIN);
+            const madhyaEnd = new Date(times.solarNoon.getTime() + TWENTY_FOUR_MIN);
+
+            timings.push({
+                name: "Madhyahnikam Sandhya (Noon)",
+                description: "The time centered around local Solar Noon, when the sun is highest in the sky.",
+                icon: "🔆",
+                start: madhyaStart,
+                end: madhyaEnd
+            });
+
+            // 3. Saayam Sandhya (Evening)
+            const saayamStart = times.sunset; // Starts at Sunset (Uttama time)
+            const saayamEnd = new Date(times.sunset.getTime() + SEVENTY_TWO_MIN);
+
+            timings.push({
+                name: "Saayam Sandhya (Evening)",
+                description: "The junction of day and night. Optimal period (Uttama) is before sunset until stars are visible.",
+                icon: "🌙",
+                start: saayamStart,
+                end: saayamEnd
+            });
+
+            return timings;
+        };
+
+        // --- UI Rendering ---
+
+        const renderTimings = (timings) => {
+            const container = document.getElementById('timings-container');
+            container.innerHTML = ''; // Clear loading message
+
+            timings.forEach(t => {
+                const timingCard = document.createElement('div');
+                timingCard.className = "card bg-white p-6 rounded-xl border-l-4 border-orange-400 shadow-md";
+
+                timingCard.innerHTML = `
+                    <div class="flex items-center mb-2">
+                        <span class="text-3xl mr-3">${t.icon}</span>
+                        <h3 class="text-xl font-bold text-orange-600">${t.name}</h3>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-3">${t.description}</p>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-gray-800">
+                            <span class="font-medium">Start Time:</span>
+                            <span class="font-extrabold text-green-600">${formatTime(t.start)}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-gray-800">
+                            <span class="font-medium">End Time:</span>
+                            <span class="font-extrabold text-red-600">${formatTime(t.end)}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(timingCard);
+            });
+        };
+
+        const displayError = (message) => {
+            document.getElementById('loading-message').classList.add('hidden');
+            const errorDiv = document.getElementById('error-message');
+            document.getElementById('error-text').textContent = message;
+            errorDiv.classList.remove('hidden');
+            errorDiv.classList.add('block');
+        };
+
+        // --- Main Execution Function ---
+
+        const main = () => {
+            // 1. Start the clock
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // 2. Get Geolocation
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const today = new Date();
+
+                        // Display location coordinates (optional, can be replaced by city name lookup if needed)
+                        document.getElementById('location-display').textContent = 
+                            `Lat: ${lat.toFixed(4)}, Lon: ${lng.toFixed(4)}`;
+
+                        // Hide loading message
+                        document.getElementById('loading-message').classList.add('hidden');
+
+                        try {
+                            // 3. Calculate and render
+                            const timings = calculateTriSandhya(today, lat, lng);
+                            renderTimings(timings);
+                        } catch (error) {
+                            console.error("Calculation Error:", error);
+                            displayError("Timing calculation failed. Please check your location data or date.");
+                        }
+
+                    },
+                    (error) => {
+                        // Handle Geolocation Errors
+                        console.error("Geolocation Error:", error);
+                        let message = "Could not get your location. Please ensure location services are enabled and allowed for this site.";
+                        if (error.code === error.PERMISSION_DENIED) {
+                            message = "Location access denied. Please allow location access to calculate timings.";
+                        }
+                        displayError(message);
+                    }
+                );
+            } else {
+                // Geolocation not supported
+                displayError("Geolocation is not supported by your browser. Cannot calculate location-based timings.");
+            }
+        };
+
+        // Initialize the app when the window loads
+        window.onload = main;
+    </script>
+
+</body>
+</html>
