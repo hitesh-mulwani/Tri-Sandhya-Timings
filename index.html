@@ -92,12 +92,15 @@
         <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Bhajan for Sandhya</h2>
         <div class="bg-white p-4 rounded-xl card border-b-4 border-red-500">
             <p class="text-sm text-gray-600 mb-3 text-center">
-                Shri Ram Jay Ram Jay Jay Ram | Ram Dhun
+                Shri Ram Jay Ram Jay Jay Ram | Chant 
             </p>
-            <div class="responsive-iframe-container rounded-lg overflow-hidden shadow-lg">
-                <iframe src="https://www.youtube.com/embed/CbPtM6oeTZU?rel=0"
-                        frameborder="0" allowfullscreen></iframe>
-            </div>
+
+            <!-- Audio Player (No Loop, No Auto-change) -->
+            <audio id="bhajan-player" controls autoplay class="w-full">
+                <source src="bhajan_47_57.mp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+
         </div>
     </div>
 
