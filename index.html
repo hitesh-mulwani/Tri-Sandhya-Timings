@@ -3,125 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tri-Sandhya Timings (Date Picker)</title>
+    <title>Trikal-Sandhya | Spiritual Prayer Timings</title>
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- SunCalc -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/suncalc@1.9.0/suncalc.js"></script>
 
     <style>
+        :root {
+            --saffron: #FF9933;
+            --deep-slate: #0f172a;
+            --accent-orange: #fbbf24;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7fafc;
+            background-color: var(--deep-slate);
+            color: #f1f5f9;
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
         }
-        .card {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-                        0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-        }
-        .glow {
-            text-shadow: 0 0 5px #f6e0b7, 0 0 10px #fbd38d;
-        }
-        .responsive-iframe-container {
-            position: relative;
-            overflow: hidden;
+
+        /* Sacred Background Pattern */
+        .sacred-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding-top: 56.25%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at center, rgba(255, 153, 51, 0.1) 0%, transparent 70%),
+                var(--deep-slate);
         }
-        .responsive-iframe-container iframe {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+
+        .mandala-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120vh;
+            height: 120vh;
+            opacity: 0.07;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23FF9933' d='M50 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 96c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM0 50c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2zm96 0c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2zM14.6 14.6c-.8.8-.8 2 0 2.8.8.8 2 .8 2.8 0 .8-.8.8-2 0-2.8-.8-.8-2-.8-2.8 0zm70.8 70.8c-.8.8-.8 2 0 2.8.8.8 2 .8 2.8 0 .8-.8.8-2 0-2.8-.8-.8-2-.8-2.8 0zM14.6 85.4c.8.8 2 .8 2.8 0 .8-.8.8-2 0-2.8-.8-.8-2-.8-2.8 0-.8.8-.8 2 0 2.8zm70.8-70.8c.8.8 2 .8 2.8 0 .8-.8.8-2 0-2.8-.8-.8-2-.8-2.8 0-.8.8-.8 2 0 2.8z'/%3E%3Ccircle cx='50' cy='50' r='10' fill='none' stroke='%23FF9933' stroke-width='0.5'/%3E%3Cpath fill='%23FF9933' d='M50 35c-8.3 0-15 6.7-15 15s6.7 15 15 15 15-6.7 15-15-6.7-15-15-15zm0 28c-7.2 0-13-5.8-13-13s5.8-13 13-13 13 5.8 13 13-5.8 13-13 13z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Sacred Om Pattern Overlay */
+        .om-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Ctext x='10' y='40' fill='%23FF9933' font-family='Arial' font-size='20'%3Eॐ%3C/text%3E%3C/svg%3E");
+            z-index: -1;
+        }
+
+        h1, h2, .spiritual-font { font-family: 'Cinzel', serif; }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 153, 51, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .timing-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+            border-left: 3px solid var(--saffron);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .timing-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-left-width: 6px;
+        }
+
+        .btn-calculate {
+            background: linear-gradient(135deg, #FF9933 0%, #FF4D00 100%);
+            box-shadow: 0 4px 15px rgba(255, 77, 0, 0.3);
+        }
+
+        .btn-calculate:hover {
+            box-shadow: 0 6px 25px rgba(255, 77, 0, 0.5);
+            transform: scale(1.02);
+        }
+
+        .orange-glow {
+            text-shadow: 0 0 20px rgba(255, 153, 51, 0.6);
+        }
+
+        input[type="date"] {
+            color-scheme: dark;
         }
     </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center p-4 bg-gray-100">
+<body class="p-4 md:p-8">
+    <div class="sacred-bg"></div>
+    <div class="mandala-overlay"></div>
+    <div class="om-pattern"></div>
 
-<div id="app" class="w-full max-w-lg">
-    <header class="text-center mb-8">
-        <h1 class="text-4xl font-extrabold text-orange-700 glow">Tri-Sandhya Timer</h1>
-        <p class="text-gray-600 mt-2">Calculate 48-minute periods based on selected date and location.</p>
-    </header>
+    <div id="app" class="w-full max-w-2xl mx-auto relative z-10">
+        <header class="text-center mb-12">
+            <div class="inline-block mb-3 px-5 py-1.5 border border-orange-500/20 bg-orange-500/5 rounded-full text-[10px] tracking-[0.3em] text-orange-400 uppercase font-bold">
+                Spiritual Prayer Time Calculator
+            </div>
+            <h1 class="text-5xl md:text-6xl font-bold text-orange-500 orange-glow tracking-widest mb-4">TRIKAL-SANDHYA</h1>
+            <p class="text-slate-400 font-light tracking-wide italic">"48 mins to align your prayers with the movements of the Sun"</p>
+        </header>
 
-    <!-- Card -->
-    <div class="bg-white p-6 rounded-xl mb-6 card border-t-4 border-orange-500">
+        <div class="glass-card p-8 rounded-[2rem] mb-10 border-t-2 border-orange-500/30">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
+                <div>
+                    <label class="block text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-3 ml-1">Select Date</label>
+                    <input type="date" id="date-input"
+                           class="w-full bg-slate-900/60 border border-slate-700/50 p-4 rounded-2xl text-white focus:outline-none focus:border-orange-500 transition-all text-sm shadow-inner"
+                           required>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3 text-xs text-slate-300 bg-black/30 p-4 rounded-2xl border border-slate-800">
+                        <div class="bg-orange-500/20 p-2 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </div>
+                        <span id="location-display" class="font-medium truncate tracking-tight">Detecting Cosmic Coordinates...</span>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Date Picker -->
-        <div class="mb-4">
-            <label for="date-input" class="block text-sm font-medium text-gray-700 mb-1">Select Date:</label>
-            <input type="date" id="date-input"
-                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
-                   required>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+                <button id="calculate-btn"
+                        class="btn-calculate text-white font-bold py-4 px-8 rounded-2xl uppercase tracking-[0.15em] text-xs transition-all">
+                    Generate Timings
+                </button>
+                <button id="clear-btn"
+                        class="bg-slate-800/80 hover:bg-slate-700 text-slate-400 font-bold py-4 px-8 rounded-2xl transition-all uppercase tracking-[0.15em] text-xs border border-slate-700">
+                    Reset
+                </button>
+            </div>
         </div>
 
-        <!-- Location Display -->
-        <p class="text-sm text-gray-500 mb-4">
-            Location:
-            <span id="location-display" class="font-medium text-gray-700">Fetching coordinates...</span>
-        </p>
-
-        <!-- Calculate button -->
-        <button id="calculate-btn"
-                class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg shadow-md">
-            Calculate Timings
-        </button>
-
-        <!-- Clear Timings button -->
-        <button id="clear-btn"
-                class="w-full mt-3 bg-gray-300 hover:bg-gray-400 text-gray-900 font-bold py-3 px-4 rounded-lg shadow-md">
-            Clear Timings
-        </button>
-
-    </div>
-
-    <!-- Timings display -->
-    <div id="timings-container" class="space-y-4">
-        <div id="loading-message"
-             class="text-center p-8 bg-yellow-100 text-yellow-800 rounded-xl font-medium">
-            Awaiting Geolocation and Date Selection...
+        <div id="timings-container" class="space-y-6">
+            <div id="loading-message" class="text-center p-16 glass-card rounded-[2rem] text-slate-500 italic text-sm tracking-wide">
+                Select a date to view the three sacred junctures...
+            </div>
         </div>
-    </div>
 
-    <!-- Bhajan -->
-    <div class="mt-8 pt-6 border-t border-gray-300">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Bhajan for Sandhya</h2>
-        <div class="bg-white p-4 rounded-xl card border-b-4 border-red-500">
-            <p class="text-sm text-gray-600 mb-3 text-center">
-                Shri Ram Jay Ram Jay Jay Ram | Chant 
-            </p>
+        <div class="mt-16 pt-10 border-t border-slate-800/50">
+            <h2 class="text-2xl font-bold text-orange-400 mb-8 text-center uppercase tracking-[0.3em]">Divine Chants</h2>
+            <div class="glass-card p-8 rounded-[2.5rem] relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <span class="text-6xl">ॐ</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-12 h-12 bg-orange-500/10 rounded-full flex items-center justify-center mb-4 animate-pulse">
+                        <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                    </div>
+                    <p class="text-xl spiritual-font text-white mb-2 tracking-widest uppercase">Shri Ram Jay Ram Jay Jay Ram</p>
+                    <p class="text-xs text-orange-400/70 mb-8 tracking-[0.2em] font-semibold">THE CHANT OF VICTORY</p>
 
-            <!-- Audio Player (No Loop, No Auto-change) -->
-            <audio id="bhajan-player" controls autoplay class="w-full">
-                <source src="bhajan_47_57.mp3" type="audio/mp3">
-                Your browser does not support the audio element.
-            </audio>
-
+                    <audio id="bhajan-player" controls class="w-full h-10 opacity-60 hover:opacity-100 transition-opacity">
+                        <source src="bhajan_47_57.mp3" type="audio/mp3">
+                    </audio>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- Error box -->
-    <div id="error-message"
-         class="hidden mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl"
-         role="alert">
-        <span class="font-bold">Error:</span>
-        <span id="error-text"></span>
+        <div id="error-message" class="hidden mt-8 p-5 bg-red-950/30 border border-red-500/20 text-red-400 rounded-2xl text-center text-sm font-light">
+            <span class="font-bold mr-2 uppercase">Guide:</span>
+            <span id="error-text"></span>
+        </div>
+        
     </div>
-</div>
-
 
 <script>
-/* -----------------------------------
-   GLOBAL VARIABLES
------------------------------------ */
+
 let userLat = null;
 let userLng = null;
 
-/* ---------- Utility ---------- */
 const formatTime = (d) => {
     if (!d || isNaN(d.getTime())) return "N/A";
     return d.toLocaleTimeString("en-US", {
@@ -136,29 +205,31 @@ const getToday = () => {
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 };
 
-/* ---------- Core Calculation ---------- */
 const calculateTriSandhya = (date, lat, lng) => {
     const times = SunCalc.getTimes(date, lat, lng);
     const T24 = 24 * 60 * 1000;
 
     return [
         {
-            name: "Pratah Sandhya (Morning)",
-            description: "48-minute period centered on Sunrise.",
+            name: "Pratah Sandhya",
+            sub: "The Dawn Transition",
+            description: "Center of Sunrise",
             icon: "🌞",
             start: new Date(times.sunrise.getTime() - T24),
             end: new Date(times.sunrise.getTime() + T24)
         },
         {
-            name: "Madhyahnikam Sandhya (Noon)",
-            description: "48-minute period centered on Solar Noon.",
+            name: "Madhyamika Sandhya",
+            sub: "The Solar Zenith",
+            description: "Center of Solar Noon",
             icon: "🔆",
             start: new Date(times.solarNoon.getTime() - T24),
             end: new Date(times.solarNoon.getTime() + T24)
         },
         {
-            name: "Saayam Sandhya (Evening)",
-            description: "48-minute period centered on Sunset.",
+            name: "Sayam Sandhya",
+            sub: "The Dusk Transition",
+            description: "Center of Sunset",
             icon: "🌙",
             start: new Date(times.sunset.getTime() - T24),
             end: new Date(times.sunset.getTime() + T24)
@@ -166,34 +237,41 @@ const calculateTriSandhya = (date, lat, lng) => {
     ];
 };
 
-/* ---------- Render UI ---------- */
 const renderTimings = (arr, date) => {
     const container = document.getElementById("timings-container");
     container.innerHTML = "";
 
-    const head = document.createElement("h3");
-    head.className = "text-xl font-bold text-gray-700 p-2 border-b border-gray-300 mb-4";
-    head.textContent = "Timings for: " + date.toDateString();
+    const head = document.createElement("div");
+    head.className = "text-center mb-8";
+    head.innerHTML = `
+        <span class="text-orange-400/60 text-[10px] uppercase tracking-[0.3em] font-bold">Calculated For</span>
+        <p class="text-white text-2xl spiritual-font tracking-widest mt-1">${date.toDateString()}</p>
+    `;
     container.appendChild(head);
 
     arr.forEach(t => {
         const card = document.createElement("div");
-        card.className = "card bg-white p-6 rounded-xl border-l-4 border-orange-400 shadow-md";
+        card.className = "timing-card p-8 rounded-[2rem] relative overflow-hidden";
 
         card.innerHTML = `
-            <div class="flex items-center mb-2">
-                <span class="text-3xl mr-3">${t.icon}</span>
-                <h3 class="text-xl font-bold text-orange-600">${t.name}</h3>
-            </div>
-            <p class="text-sm text-gray-500 mb-3">${t.description}</p>
-            <div class="space-y-2">
-                <div class="flex justify-between text-gray-800">
-                    <span class="font-medium">Start Time:</span>
-                    <span class="font-extrabold text-green-600">${formatTime(t.start)}</span>
+            <div class="flex items-center justify-between relative z-10">
+                <div class="flex items-center gap-6">
+                    <div class="text-4xl filter drop-shadow-[0_0_8px_rgba(255,153,51,0.4)]">${t.icon}</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-orange-400 spiritual-font tracking-widest">${t.name}</h3>
+                        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-[0.2em] mt-1">${t.sub}</p>
+                    </div>
                 </div>
-                <div class="flex justify-between text-gray-800">
-                    <span class="font-medium">End Time:</span>
-                    <span class="font-extrabold text-red-600">${formatTime(t.end)}</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-6 mt-8 relative z-10">
+                <div class="bg-black/40 p-5 rounded-2xl border border-white/5 group-hover:border-white/10 transition-colors">
+                    <span class="block text-[10px] uppercase text-slate-500 font-bold tracking-widest mb-2">Sacred Commencement</span>
+                    <span class="text-green-400 font-bold text-xl tracking-tight">${formatTime(t.start)}</span>
+                </div>
+                <div class="bg-black/40 p-5 rounded-2xl border border-white/5 group-hover:border-white/10 transition-colors">
+                    <span class="block text-[10px] uppercase text-slate-500 font-bold tracking-widest mb-2">Sacred Conclusion</span>
+                    <span class="text-orange-500 font-bold text-xl tracking-tight">${formatTime(t.end)}</span>
                 </div>
             </div>
         `;
@@ -201,35 +279,28 @@ const renderTimings = (arr, date) => {
     });
 };
 
-/* ---------- Error ---------- */
 const displayError = (msg) => {
     const e = document.getElementById("error-message");
     document.getElementById("error-text").textContent = msg;
     e.classList.remove("hidden");
 };
 
-/* ---------- Clearing ---------- */
 const clearTimings = () => {
     document.getElementById("timings-container").innerHTML = `
-        <div id="loading-message"
-             class="text-center p-8 bg-yellow-100 text-yellow-800 rounded-xl font-medium">
-            Awaiting Geolocation and Date Selection...
+        <div id="loading-message" class="text-center p-16 glass-card rounded-[2rem] text-slate-500 italic text-sm tracking-wide">
+            Select a date to view the three sacred junctures...
         </div>`;
     document.getElementById("error-message").classList.add("hidden");
 };
 
-/* ---------- Main Calculation Handler ---------- */
 const handleCalc = () => {
     if (!userLat || !userLng) {
         displayError("Location not available yet.");
         return;
     }
-
     const d = document.getElementById("date-input").value;
     if (!d) return displayError("Please select a valid date.");
-
     const dateObj = new Date(d + "T00:00:00");
-
     try {
         const t = calculateTriSandhya(dateObj, userLat, userLng);
         renderTimings(t, dateObj);
@@ -238,10 +309,8 @@ const handleCalc = () => {
     }
 };
 
-/* ---------- INIT ---------- */
 window.onload = () => {
     document.getElementById("date-input").value = getToday();
-
     document.getElementById("calculate-btn").addEventListener("click", handleCalc);
     document.getElementById("clear-btn").addEventListener("click", clearTimings);
 
@@ -251,7 +320,7 @@ window.onload = () => {
                 userLat = pos.coords.latitude;
                 userLng = pos.coords.longitude;
                 document.getElementById("location-display").textContent =
-                    `Lat: ${userLat.toFixed(4)}, Lon: ${userLng.toFixed(4)}`;
+                    `${userLat.toFixed(2)}°N, ${userLng.toFixed(2)}°E`;
             },
             err => {
                 displayError("Location access denied.");
@@ -263,6 +332,5 @@ window.onload = () => {
     }
 };
 </script>
-
 </body>
 </html>
